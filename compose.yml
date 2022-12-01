@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  db:
+    container_name: pg_container
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - /home/nick/ana-health/docker/psql-env/data:/home/node/app
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
+  nifi:
+    hostname: mynifi
+    container_name: nifi_container
+    image: "apache/nifi:1.16.0"
+    ports:
+      - "8443:8443"
+    environment:
+      - NIFI_WEB_HTTP_PORT=8443
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=ctsBtRBKHRAx69EqUghvvgEvjnaLjFEB
+      - NIFI_SENSITIVE_PROPS_KEY=NIFI_SENSITIVE_PROPS_KEY=RZPhcsGRR7xZB8ARB7xu3bg+Fd5Qp76K1
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://mynifi:8443/nifi/"]
+      interval: 30s
+      timeout: 20s
+      retries: 2
